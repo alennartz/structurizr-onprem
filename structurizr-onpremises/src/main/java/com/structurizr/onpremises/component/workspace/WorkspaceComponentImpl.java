@@ -260,6 +260,17 @@ class WorkspaceComponentImpl implements WorkspaceComponent {
                 workspace.getConfiguration().setScope(WorkspaceScope.SoftwareSystem);
             }
 
+            String defaultVisibility = Configuration.getInstance().getProperty(StructurizrProperties.WORKSPACE_DEFAULT_VISIBILITY);
+            if ("private".equalsIgnoreCase(defaultVisibility)) {
+                workspace.getConfiguration().setVisibility(Visibility.Private);
+            } else if ("public".equalsIgnoreCase(defaultVisibility)) {
+                workspace.getConfiguration().setVisibility(Visibility.Public);
+            }
+
+            if (user != null) {
+                workspace.getConfiguration().addUser(user.getUsername(), Role.ReadWrite);
+            }
+
             String json = WorkspaceUtils.toJson(workspace, false);
 
             putWorkspace(workspaceId, null, json);
@@ -408,6 +419,11 @@ class WorkspaceComponentImpl implements WorkspaceComponent {
                                 }
                             }
                         }
+                    }
+
+                    String preventPublic = Configuration.getInstance().getProperty(StructurizrProperties.WORKSPACE_PREVENT_PUBLIC);
+                    if ("true".equalsIgnoreCase(preventPublic) && workspaceMetaData.isPublicWorkspace()) {
+                        throw new WorkspaceComponentException("Making workspaces public is prevented by configuration.");
                     }
 
                     putWorkspaceMetaData(workspaceMetaData);

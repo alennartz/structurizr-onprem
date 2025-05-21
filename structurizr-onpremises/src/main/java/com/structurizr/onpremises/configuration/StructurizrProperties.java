@@ -78,4 +78,7 @@ public class StructurizrProperties {
     public static final String REDIS_PASSWORD = "structurizr.redis.password";
     public static final String REDIS_DATABASE = "structurizr.redis.database";
 
+    public static final String WORKSPACE_DEFAULT_VISIBILITY = "structurizr.workspace.defaultVisibility";
+    public static final String WORKSPACE_PREVENT_PUBLIC = "structurizr.workspace.preventPublic";
+
 }

@@ -792,4 +792,64 @@ public class WorkspaceComponentImplTests {
         }
     }
 
+    @Test
+    public void test_createWorkspace_WithDefaultVisibilityAndUserPermissions() throws Exception {
+        final WorkspaceMetaData workspaceMetaData = new WorkspaceMetaData(1);
+        final StringBuffer jsonBuffer = new StringBuffer();
+        WorkspaceDao dao = new MockWorkspaceDao() {
+            @Override
+            public long createWorkspace(User user) {
+                return 1;
+            }
+
+            @Override
+            public void putWorkspaceMetaData(WorkspaceMetaData wmd) {
+                workspaceMetaData.setLastModifiedDate(wmd.getLastModifiedDate());
+            }
+
+            @Override
+            public void putWorkspace(WorkspaceMetaData workspaceMetaData, String json, String branch) {
+                jsonBuffer.append(json);
+            }
+        };
+
+        Configuration.getInstance().setProperty("structurizr.workspace.defaultVisibility", "private");
+
+        WorkspaceComponent workspaceComponent = new WorkspaceComponentImpl(dao, "");
+        User user = new User("user1", new HashSet<>(), AuthenticationMethod.LOCAL);
+        long workspaceId = workspaceComponent.createWorkspace(user);
+
+        assertEquals(1, workspaceId);
+        assertEquals(String.format("""
+                {"configuration":{"users":[{"username":"user1","role":"ReadWrite"}],"visibility":"Private"},"description":"Description","documentation":{},"id":1,"lastModifiedDate":"%s","model":{},"name":"Workspace 0001","views":{"configuration":{"branding":{},"styles":{},"terminology":{}}}}""", DateUtils.formatIsoDate(workspaceMetaData.getLastModifiedDate())), jsonBuffer.toString());
+    }
+
+    @Test
+    public void test_putWorkspace_PreventsMakingWorkspacePublic() throws Exception {
+        Workspace workspace = new Workspace("Name", "Description");
+        workspace.getConfiguration().setVisibility(Visibility.Public);
+
+        String json = WorkspaceUtils.toJson(workspace, false);
+
+        final WorkspaceMetaData wmd = new WorkspaceMetaData(1);
+        wmd.setPublicWorkspace(false);
+
+        WorkspaceDao dao = new MockWorkspaceDao() {
+            @Override
+            public void putWorkspaceMetaData(WorkspaceMetaData workspaceMetaData) {
+                wmd.setPublicWorkspace(workspaceMetaData.isPublicWorkspace());
+            }
+        };
+
+        Configuration.getInstance().setProperty("structurizr.workspace.preventPublic", "true");
+
+        WorkspaceComponent workspaceComponent = new WorkspaceComponentImpl(dao, "");
+        try {
+            workspaceComponent.putWorkspace(1, "", json);
+            fail();
+        } catch (WorkspaceComponentException e) {
+            assertEquals("Making workspaces public is prevented by configuration.", e.getMessage());
+        }
+    }
+
 }
