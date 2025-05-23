@@ -1,6 +1,8 @@
 package com.structurizr.onpremises.web.workspace.diagrams;
 
 import com.structurizr.onpremises.component.workspace.WorkspaceMetaData;
+import com.structurizr.onpremises.configuration.Configuration;
+import com.structurizr.onpremises.configuration.Features;
 import com.structurizr.onpremises.util.HtmlUtils;
 import com.structurizr.onpremises.util.JsonUtils;
 import com.structurizr.onpremises.web.workspace.AbstractWorkspaceController;
@@ -67,6 +69,10 @@ public class EmbedController extends AbstractWorkspaceController {
         WorkspaceMetaData workspace = workspaceComponent.getWorkspaceMetaData(workspaceId);
         if (workspace == null) {
             return show404Page(model);
+        }
+
+        if (!Configuration.getInstance().isFeatureEnabled(Features.WORKSPACE_SHARING_LINKS)) {
+            return showFeatureNotAvailablePage(model);
         }
 
         if (workspace.isShareable() && workspace.getSharingToken().equals(token)) {

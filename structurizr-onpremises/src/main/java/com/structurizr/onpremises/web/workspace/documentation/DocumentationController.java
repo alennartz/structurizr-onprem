@@ -1,5 +1,7 @@
 package com.structurizr.onpremises.web.workspace.documentation;
 
+import com.structurizr.onpremises.configuration.Configuration;
+import com.structurizr.onpremises.configuration.Features;
 import com.structurizr.onpremises.component.workspace.WorkspaceMetaData;
 import com.structurizr.onpremises.web.workspace.AbstractWorkspaceController;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -99,6 +101,10 @@ public class DocumentationController extends AbstractWorkspaceController {
             @PathVariable("token") String token,
             ModelMap model
     ) {
+        if (!Configuration.getInstance().isFeatureEnabled(Features.WORKSPACE_SHARING_LINKS)) {
+            return showFeatureNotAvailablePage(model);
+        }
+
         model.addAttribute("scope", Base64.getEncoder().encodeToString(toScope(softwareSystem, container, component).getBytes(StandardCharsets.UTF_8)));
         model.addAttribute("showHeader", true);
 

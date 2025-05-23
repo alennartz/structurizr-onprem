@@ -36,6 +36,10 @@ public class WorkspaceSummaryController extends AbstractWorkspaceController {
             @PathVariable("token") String token,
             ModelMap model
     ) {
+        if (!Configuration.getInstance().isFeatureEnabled(Features.WORKSPACE_SHARING_LINKS)) {
+            return showFeatureNotAvailablePage(model);
+        }
+
         model.addAttribute("branch", "");
         model.addAttribute("versions", workspaceComponent.getWorkspaceVersions(workspaceId, null));
 

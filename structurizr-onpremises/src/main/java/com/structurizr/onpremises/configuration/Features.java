@@ -17,4 +17,6 @@ public class Features {
 
     public static final String DIAGRAM_ANONYMOUS_THUMBNAILS = "structurizr.feature.diagram.anonymousthumbnails";
 
+    public static final String WORKSPACE_SHARING_LINKS = "structurizr.feature.workspace.sharinglinks";
+
 }

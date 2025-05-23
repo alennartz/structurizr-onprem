@@ -40,6 +40,10 @@ public class DiagramViewerController extends AbstractWorkspaceController {
             @PathVariable("token") String token,
             ModelMap model
     ) {
+        if (!Configuration.getInstance().isFeatureEnabled(Features.WORKSPACE_SHARING_LINKS)) {
+            return showFeatureNotAvailablePage(model);
+        }
+
         model.addAttribute("publishThumbnails", Configuration.getInstance().isFeatureEnabled(Features.DIAGRAM_ANONYMOUS_THUMBNAILS));
         model.addAttribute("quickNavigationPath", "diagrams");
         model.addAttribute("perspective", HtmlUtils.filterHtml(perspective));

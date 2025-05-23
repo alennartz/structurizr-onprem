@@ -29,6 +29,10 @@ public class ShareWorkspaceController extends AbstractWorkspaceController {
                     return showFeatureNotAvailablePage(model);
                 }
 
+                if (!Configuration.getInstance().isFeatureEnabled(Features.WORKSPACE_SHARING_LINKS)) {
+                    return showFeatureNotAvailablePage(model);
+                }
+
                 if (workspace.hasNoUsersConfigured() || workspace.isWriteUser(getUser())) {
                     workspaceComponent.shareWorkspace(workspaceId);
                 }

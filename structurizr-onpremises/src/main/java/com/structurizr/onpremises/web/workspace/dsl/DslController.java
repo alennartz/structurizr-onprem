@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.structurizr.onpremises.configuration.Configuration;
+import com.structurizr.onpremises.configuration.Features;
+
 @Controller
 public class DslController extends AbstractWorkspaceController {
 
@@ -49,6 +52,10 @@ public class DslController extends AbstractWorkspaceController {
             @PathVariable("token") String token,
             ModelMap model
     ) {
+        if (!Configuration.getInstance().isFeatureEnabled(Features.WORKSPACE_SHARING_LINKS)) {
+            return showFeatureNotAvailablePage(model);
+        }
+
         WorkspaceMetaData workspaceMetaData = workspaceComponent.getWorkspaceMetaData(workspaceId);
         if (workspaceMetaData == null) {
             return show404Page(model);

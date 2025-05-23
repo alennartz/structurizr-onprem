@@ -1,6 +1,8 @@
 package com.structurizr.onpremises.web.workspace.json;
 
 import com.structurizr.onpremises.component.workspace.WorkspaceMetaData;
+import com.structurizr.onpremises.configuration.Configuration;
+import com.structurizr.onpremises.configuration.Features;
 import com.structurizr.onpremises.web.workspace.AbstractWorkspaceController;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,6 +48,10 @@ public class JsonController extends AbstractWorkspaceController {
         WorkspaceMetaData workspaceMetaData = workspaceComponent.getWorkspaceMetaData(workspaceId);
         if (workspaceMetaData == null) {
             return show404Page(model);
+        }
+
+        if (!Configuration.getInstance().isFeatureEnabled(Features.WORKSPACE_SHARING_LINKS)) {
+            return showFeatureNotAvailablePage(model);
         }
 
         try {

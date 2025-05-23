@@ -120,6 +120,8 @@ public final class Configuration {
             features.configure(Features.UI_DSL_EDITOR, Boolean.parseBoolean(getProperty(DSL_EDITOR)));
         }
 
+        features.configure(Features.WORKSPACE_SHARING_LINKS, Boolean.parseBoolean(getProperty(Features.WORKSPACE_SHARING_LINKS)));
+
         properties.remove(DSL_EDITOR); // not needed after the feature has been configured
     }
 
