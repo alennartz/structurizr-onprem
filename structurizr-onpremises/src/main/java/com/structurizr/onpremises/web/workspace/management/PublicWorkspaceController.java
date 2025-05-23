@@ -4,7 +4,6 @@ import com.structurizr.onpremises.component.workspace.WorkspaceComponentExceptio
 import com.structurizr.onpremises.component.workspace.WorkspaceMetaData;
 import com.structurizr.onpremises.configuration.Configuration;
 import com.structurizr.onpremises.configuration.Features;
-import com.structurizr.onpremises.configuration.StructurizrProperties;
 import com.structurizr.onpremises.web.workspace.AbstractWorkspaceController;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,8 +29,7 @@ public class PublicWorkspaceController extends AbstractWorkspaceController {
                     return showFeatureNotAvailablePage(model);
                 }
 
-                String preventPublic = Configuration.getInstance().getProperty(StructurizrProperties.WORKSPACE_PREVENT_PUBLIC);
-                if ("true".equalsIgnoreCase(preventPublic)) {
+                if (Configuration.getInstance().preventPublicWorkspaces()) {
                     return showFeatureNotAvailablePage(model);
                 }
 

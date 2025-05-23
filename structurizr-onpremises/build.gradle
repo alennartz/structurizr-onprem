@@ -104,6 +104,12 @@ dependencies {
 		}
 	}
 
+
+	// --- JUnit Platform and Jupiter: force compatible versions for VS Code Java Test Runner ---
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+	testImplementation 'org.junit.platform:junit-platform-launcher:1.10.2'
+	testImplementation 'org.junit.platform:junit-platform-commons:1.10.2'
+
 	testImplementation 'org.testcontainers:elasticsearch:1.20.6'
 }
 
@@ -149,5 +155,10 @@ configurations.implementation {
 }
 
 configurations.all {
+	resolutionStrategy {
+		force 'org.junit.jupiter:junit-jupiter:5.10.2'
+		force 'org.junit.platform:junit-platform-launcher:1.10.2'
+		force 'org.junit.platform:junit-platform-commons:1.10.2'
+	}
 	exclude group: "commons-logging", module: "commons-logging"
 }

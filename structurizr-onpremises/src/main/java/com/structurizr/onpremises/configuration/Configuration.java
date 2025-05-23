@@ -203,6 +203,10 @@ public final class Configuration {
     public boolean isSafeMode() {
         return false;
     }
+
+    public boolean preventPublicWorkspaces() {
+        return Boolean.parseBoolean(getProperty(StructurizrProperties.WORKSPACE_PREVENT_PUBLIC));
+    }
     
     public boolean hasInternetConnection() {
         return Boolean.parseBoolean(getProperty(INTERNET_CONNECTION));

@@ -1,0 +1,42 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build onpremises",
+      "type": "shell",
+      "command": "./gradlew :structurizr-onpremises:build",
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Build plugin",
+      "type": "shell",
+      "command": "./gradlew :structurizr-onpremises-plugin:build",
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Build Docker image",
+      "type": "shell",
+      "command": "docker build -t structurizr-alenna .",
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}/structurizr-onpremises"
+      }
+    },
+    {
+      "label": "Run Docker container",
+      "type": "shell",
+      "command": "docker run --rm -p 8080:8080 -v \"${workspaceFolder}/.structurizr:/usr/local/structurizr\" structurizr-alenna",
+      "group": "none",
+      "options": {
+        "cwd": "${workspaceFolder}/structurizr-onpremises"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

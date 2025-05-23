@@ -1,8 +1,5 @@
 package com.structurizr.onpremises.component.workspace;
 
-import com.structurizr.configuration.Visibility;
-import com.structurizr.onpremises.configuration.Configuration;
-import com.structurizr.onpremises.configuration.StructurizrProperties;
 import com.structurizr.onpremises.domain.User;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,23 +28,9 @@ abstract class AbstractWorkspaceDao implements WorkspaceDao {
             try {
                 // create and write the workspace metadata
                 WorkspaceMetaData workspaceMetaData = new WorkspaceMetaData(workspaceId);
-
-                String defaultVisibility = Configuration.getInstance().getProperty(StructurizrProperties.WORKSPACE_DEFAULT_VISIBILITY);
-                if ("private".equalsIgnoreCase(defaultVisibility)) {
-                    if (user == null) {
-                        throw new WorkspaceComponentException("Cannot create a private workspace without a user");
-                    }
-                    workspaceMetaData.setPublicWorkspace(false);
+                if (user != null) {
                     workspaceMetaData.setOwner(user.getUsername());
-                    workspaceMetaData.addWriteUser(user.getUsername());
-                } else if ("public".equalsIgnoreCase(defaultVisibility)) {
-                    workspaceMetaData.setPublicWorkspace(true);
-                    if (user != null) {
-                        workspaceMetaData.setOwner(user.getUsername());
-                        workspaceMetaData.addWriteUser(user.getUsername());
-                    }
                 }
-
                 workspaceMetaData.setApiKey(UUID.randomUUID().toString());
                 workspaceMetaData.setApiSecret(UUID.randomUUID().toString());
 

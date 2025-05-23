@@ -194,6 +194,7 @@ class WorkspaceComponentImpl implements WorkspaceComponent {
 
     @Override
     public void putWorkspaceMetaData(WorkspaceMetaData workspaceMetaData) throws WorkspaceComponentException {
+    
         workspaceDao.putWorkspaceMetaData(workspaceMetaData);
 
         if (workspaceMetaData != null) {
@@ -260,15 +261,14 @@ class WorkspaceComponentImpl implements WorkspaceComponent {
                 workspace.getConfiguration().setScope(WorkspaceScope.SoftwareSystem);
             }
 
-            String defaultVisibility = Configuration.getInstance().getProperty(StructurizrProperties.WORKSPACE_DEFAULT_VISIBILITY);
-            if ("private".equalsIgnoreCase(defaultVisibility)) {
+            if (Configuration.getInstance().preventPublicWorkspaces()) {
                 workspace.getConfiguration().setVisibility(Visibility.Private);
-            } else if ("public".equalsIgnoreCase(defaultVisibility)) {
-                workspace.getConfiguration().setVisibility(Visibility.Public);
-            }
-
-            if (user != null) {
-                workspace.getConfiguration().addUser(user.getUsername(), Role.ReadWrite);
+                if (user != null) {
+                    workspace.getConfiguration().addUser(user.getUsername(), Role.ReadWrite);
+                }
+                else {
+                    throw new WorkspaceComponentException("Cannot create a workspace without a user when prevent public workspaces is enabled");
+                }
             }
 
             String json = WorkspaceUtils.toJson(workspace, false);
@@ -397,39 +397,37 @@ class WorkspaceComponentImpl implements WorkspaceComponent {
 
             if (StringUtils.isNullOrEmpty(branch)) {
                 // only store workspace metadata for the main branch
-                try {
-                    workspaceMetaData.setName(workspaceToBeStored.getName());
-                    workspaceMetaData.setDescription(workspaceToBeStored.getDescription());
+              
+                workspaceMetaData.setName(workspaceToBeStored.getName());
+                workspaceMetaData.setDescription(workspaceToBeStored.getDescription());
 
-                    // configure users
-                    if (configuration != null) {
-                        if (configuration.getVisibility() != null) {
-                            workspaceMetaData.setPublicWorkspace(configuration.getVisibility() == Visibility.Public);
-                        }
+                // configure users
+                if (configuration != null) {
+                    if (configuration.getVisibility() != null) {
+                        workspaceMetaData.setPublicWorkspace(configuration.getVisibility() == Visibility.Public);
+                    }
 
-                        if (!configuration.getUsers().isEmpty()) {
-                            workspaceMetaData.clearWriteUsers();
-                            workspaceMetaData.clearReadUsers();
+                    if (!configuration.getUsers().isEmpty()) {
+                        workspaceMetaData.clearWriteUsers();
+                        workspaceMetaData.clearReadUsers();
 
-                            for (com.structurizr.configuration.User user : configuration.getUsers()) {
-                                if (user.getRole() == Role.ReadWrite) {
-                                    workspaceMetaData.addWriteUser(user.getUsername());
-                                } else {
-                                    workspaceMetaData.addReadUser(user.getUsername());
-                                }
+                        for (com.structurizr.configuration.User user : configuration.getUsers()) {
+                            if (user.getRole() == Role.ReadWrite) {
+                                workspaceMetaData.addWriteUser(user.getUsername());
+                            } else {
+                                workspaceMetaData.addReadUser(user.getUsername());
                             }
                         }
                     }
-
-                    String preventPublic = Configuration.getInstance().getProperty(StructurizrProperties.WORKSPACE_PREVENT_PUBLIC);
-                    if ("true".equalsIgnoreCase(preventPublic) && workspaceMetaData.isPublicWorkspace()) {
-                        throw new WorkspaceComponentException("Making workspaces public is prevented by configuration.");
-                    }
-
-                    putWorkspaceMetaData(workspaceMetaData);
-                } catch (Exception e) {
-                    log.error(e);
                 }
+
+                boolean preventPublic = Configuration.getInstance().preventPublicWorkspaces();
+                if (preventPublic && workspaceMetaData.isPublicWorkspace()) {
+                    throw new WorkspaceComponentException("Making workspaces public is prevented by configuration.");
+                }
+
+
+                putWorkspaceMetaData(workspaceMetaData);
             }
         } catch (WorkspaceComponentException wce) {
             throw wce;
@@ -551,6 +549,11 @@ class WorkspaceComponentImpl implements WorkspaceComponent {
     @Override
     public void makeWorkspacePublic(long workspaceId) throws WorkspaceComponentException {
         WorkspaceMetaData workspace = getWorkspaceMetaData(workspaceId);
+
+        if(Configuration.getInstance().preventPublicWorkspaces()){
+            throw new WorkspaceComponentException("Public workspaces are not allowed on this server");
+        }
+
         workspace.setPublicWorkspace(true);
         putWorkspaceMetaData(workspace);
     }
